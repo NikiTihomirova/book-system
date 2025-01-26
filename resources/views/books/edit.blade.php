@@ -63,8 +63,8 @@
             <label for="image" class="block text-lg font-medium text-gray-700">Снимка на книгата</label>
             @if($book->image)
                 <div class="mb-2">
-                    <img src="{{ asset('storage/' . $book->image) }}" alt="{{ $book->title }}" class="w-32 h-32 object-cover mb-2 rounded-lg">
-                    <small class="form-text text-gray-500">Ако качите ново изображение, съществуващото ще бъде заменено.</small>
+                <img src="{{ asset('storage/' . $book->image) }}" alt="{{ $book->title }}" class="w-32 h-32 object-cover mb-2 rounded-lg">
+                <small class="form-text text-gray-500">Ако качите ново изображение, съществуващото ще бъде заменено.</small>
                 </div>
             @endif
             <input type="file" name="image" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="image" accept="image/*">

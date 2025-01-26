@@ -34,14 +34,15 @@ class BookController extends Controller
 }
 
     // Съхраняване на нова книга
-    public function store(Request $request)
+    // Контролер за създаване на книга
+public function store(Request $request)
 {
     // Валидация на входните данни
     $request->validate([
         'title' => 'required|string|max:255',
         'author' => 'required|string|max:255',
         'genre' => 'required|string|max:255',
-        'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Позволява само до 2 десетични места
+        'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
@@ -56,19 +57,20 @@ class BookController extends Controller
     $book->title = $request->title;
     $book->author_id = $author->id;
     $book->genre_id = $genre->id;
-    $book->price = number_format($request->price, 2, '.', ''); // Форматираме цената до 2 десетични места
+    $book->price = number_format($request->price, 2, '.', '');
 
     // Обработка на изображение
     if ($request->hasFile('image')) {
+        // Преместваме изображението в публичната директория
         $imagePath = $request->file('image')->store('books', 'public');
         $book->image = $imagePath;
     }
 
     $book->save();
 
-    // Успешно съхранение
     return redirect()->route('books.index')->with('status', 'Книгата беше добавена успешно!');
 }
+
 
     // Редактиране на книга
     public function edit($id)
@@ -83,36 +85,45 @@ class BookController extends Controller
         return view('books.edit', compact('book', 'authors', 'genres'));
     }
 
-    public function update(Request $request, $id)
-{
-    // Валидиране на входа
-    $validated = $request->validate([
+    // Контролер за редактиране на книга
+public function update(Request $request, $id)
+{   
+    
+    // Валидация на входните данни
+    $request->validate([
         'title' => 'required|string|max:255',
-        'author_id' => 'required|exists:authors,id',
-        'genre_id' => 'required|exists:genres,id',
-        'price' => 'required|numeric',
-        'image' => 'nullable|image|max:1024',
+        'author' => 'required|string|max:255',
+        'genre' => 'required|string|max:255',
+        'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
-    // Вземи книгата с ID-то
+    // Намиране на книгата
     $book = Book::findOrFail($id);
 
-    // Актуализирай данните
-    $book->title = $validated['title'];
-    $book->author_id = $validated['author_id'];
-    $book->genre_id = $validated['genre_id'];
-    $book->price = $validated['price'];
+    // Обновяване на полетата на книгата
+    $book->title = $request->title;
+    $book->author_id = Author::firstOrCreate(['name' => $request->author])->id;
+    $book->genre_id = Genre::firstOrCreate(['name' => $request->genre])->id;
+    $book->price = number_format($request->price, 2, '.', '');
 
-    // Ако има ново изображение
+    // Обработка на изображение
     if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('public/books');
-        $book->image = basename($imagePath);
+        // Премахваме старата снимка, ако има
+        if ($book->image && file_exists(storage_path('app/public/' . $book->image))) {
+            unlink(storage_path('app/public/' . $book->image)); // Изтриваме старата снимка
+        }
+
+        // Качване на новото изображение
+        $imagePath = $request->file('image')->store('books', 'public');  // Пътят за качване
+        $book->image = $imagePath;
     }
 
     $book->save();
 
-    return redirect()->route('admin.books.index')->with('status', 'Книгата е успешно актуализирана!');
+    return redirect()->route('books.index')->with('status', 'Книгата беше актуализирана успешно!');
 }
+
 
     // Изтриване на книга
     public function destroy(Book $book)

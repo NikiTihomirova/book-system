@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\BookController;
-use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,7 +18,8 @@ Route::post('books/create', [BookController::class, 'store'])->name('books.store
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
 Route::post('/books', [BookController::class, 'store'])->name('books.store');
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+// Променяме 'admin' на 'isAdmin' в middleware за администраторските рутове
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdmin'])->group(function () {
     Route::resource('books', BookController::class);
 });
 
@@ -35,14 +37,15 @@ Route::middleware(['auth'])->group(function () {
     // Рут за премахване на книга от кошницата
     Route::delete('/cart/remove/{bookId}', [CartController::class, 'remove'])->name('cart.remove');
 
-    // Рут за актуализиране на количестовото на книга в кошницата
+    // Рут за актуализиране на количеството на книга в кошницата
     Route::patch('/cart/update/{bookId}', [CartController::class, 'update'])->name('cart.update');
 
     // Рут за изпразване на кошницата
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 });
+
 // Група с администраторски рутове (изисква middleware 'isAdmin')
-Route::middleware(['isAdmin'])->group(function (){
+Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin/books', [BookController::class, 'index'])->name('admin.books.index');
     Route::get('/admin/books/{book}/edit', [BookController::class, 'edit'])->name('admin.books.edit');
     Route::put('/admin/books/{book}', [BookController::class, 'update'])->name('admin.books.update');
@@ -54,7 +57,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-use App\Http\Controllers\ProfileController;
 
 // Пътя за профила, с middleware за проверка на логнатия потребител
 Route::middleware(['auth'])->group(function () {
@@ -62,8 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
-use App\Http\Controllers\UserController;
-
+// Администраторски рутове за управление на потребителите
 Route::prefix('admin')->name('admin.')->middleware('can:admin')->group(function () {
     Route::resource('users', UserController::class);
 });
@@ -72,4 +73,4 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-require __DIR__.'/auth.php';  
+require __DIR__.'/auth.php';

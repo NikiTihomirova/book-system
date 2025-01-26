@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class IsAdmin
 {
     /**
-     * Handle an incoming request.
+     * Проверява дали потребителят е администратор.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
@@ -17,10 +17,12 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->role === 'admin') {
+        // Проверка дали потребителят е логнат и има администраторски права
+        if (Auth::check() && Auth::user()->is_admin) {
             return $next($request);
         }
 
-        return redirect()->route('home'); // Пренасочване, ако не е администратор
+        // Пренасочване, ако потребителят не е администратор
+        return redirect('/')->with('error', 'Нямате права за достъп.');
     }
 }
