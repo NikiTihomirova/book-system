@@ -32,23 +32,14 @@
         </div>
 
         <!-- Автор -->
-        <div class="mb-4">
-            <label for="author_id" class="block text-lg font-medium text-gray-700">Автор</label>
-            <select name="author_id" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="author_id" required>
-                @foreach($authors as $author)
-                    <option value="{{ $author->id }}" {{ old('author_id') == $author->id ? 'selected' : '' }}>{{ $author->name }}</option>
-                @endforeach
-            </select>
+        <div class="form-group mb-3">
+            <label for="author">Автор</label>
+            <input type="text" name="author" class="form-control" id="author" value="{{ old('author') }}" placeholder="Въведете име на автора" required>
         </div>
 
-        <!-- Жанр -->
-        <div class="mb-4">
-            <label for="genre_id" class="block text-lg font-medium text-gray-700">Жанр</label>
-            <select name="genre_id" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="genre_id" required>
-                @foreach($genres as $genre)
-                    <option value="{{ $genre->id }}" {{ old('genre_id') == $genre->id ? 'selected' : '' }}>{{ $genre->name }}</option>
-                @endforeach
-            </select>
+        <div class="form-group mb-3">
+            <label for="genre">Жанр</label>
+            <input type="text" name="genre" class="form-control" id="genre" value="{{ old('genre') }}" placeholder="Въведете жанр" required>
         </div>
 
         <!-- Цена -->
