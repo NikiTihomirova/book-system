@@ -36,25 +36,39 @@ class BookController extends Controller
     // Съхраняване на нова книга
     public function store(Request $request)
 {
+    // Валидация на входните данни
     $request->validate([
         'title' => 'required|string|max:255',
-        'author_id' => 'required|exists:authors,id', // Използвайте author_id
-        'genre_id' => 'required|exists:genres,id',  // Използвайте genre_id
-        'price' => 'required|numeric|min:0',
+        'author' => 'required|string|max:255',
+        'genre' => 'required|string|max:255',
+        'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/', // Позволява само до 2 десетични места
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
-    // Създайте нова книга
-    Book::create([
-        'title' => $request->title,
-        'author_id' => $request->author_id, // Записвайте author_id
-        'genre_id' => $request->genre_id,   // Записвайте genre_id
-        'price' => $request->price,
-    ]);
+    // Проверка дали авторът съществува
+    $author = Author::firstOrCreate(['name' => $request->author]);
 
-    return redirect()->route('admin.books.index')->with('success', 'Книгата е добавена успешно!');
+    // Проверка дали жанрът съществува
+    $genre = Genre::firstOrCreate(['name' => $request->genre]);
+
+    // Създаване на нова книга
+    $book = new Book();
+    $book->title = $request->title;
+    $book->author_id = $author->id;
+    $book->genre_id = $genre->id;
+    $book->price = number_format($request->price, 2, '.', ''); // Форматираме цената до 2 десетични места
+
+    // Обработка на изображение
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('books', 'public');
+        $book->image = $imagePath;
+    }
+
+    $book->save();
+
+    // Успешно съхранение
+    return redirect()->route('books.index')->with('status', 'Книгата беше добавена успешно!');
 }
-
-
 
     // Редактиране на книга
     public function edit($id)

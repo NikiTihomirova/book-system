@@ -33,20 +33,22 @@
 
         <!-- Автор -->
         <div class="form-group mb-3">
-            <label for="author">Автор</label>
-            <input type="text" name="author" class="form-control" id="author" value="{{ old('author') }}" placeholder="Въведете име на автора" required>
+            <label for="author" class="block text-lg font-medium text-gray-700">Автор</label>
+            <input type="text" name="author" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="author" value="{{ old('author') }}" placeholder="Въведете име на автора" required>
         </div>
 
+        <!-- Жанр -->
         <div class="form-group mb-3">
-            <label for="genre">Жанр</label>
-            <input type="text" name="genre" class="form-control" id="genre" value="{{ old('genre') }}" placeholder="Въведете жанр" required>
+            <label for="genre" class="block text-lg font-medium text-gray-700">Жанр</label>
+            <input type="text" name="genre" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="genre" value="{{ old('genre') }}" placeholder="Въведете жанр" required>
         </div>
 
         <!-- Цена -->
         <div class="mb-4">
             <label for="price" class="block text-lg font-medium text-gray-700">Цена</label>
-            <input type="number" name="price" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="price" value="{{ old('price') }}" placeholder="Въведете цена" required>
+            <input type="number" name="price" class="form-control w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="price" value="{{ old('price') }}" placeholder="Въведете цена" step="0.01" required>
         </div>
+
 
         <!-- Снимка на книгата -->
         <div class="mb-4">
