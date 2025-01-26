@@ -36,27 +36,22 @@ class BookController extends Controller
     // Съхраняване на нова книга
     public function store(Request $request)
 {
-    $validated = $request->validate([
+    $request->validate([
         'title' => 'required|string|max:255',
-        'author' => 'required|string|max:255',
-        'genre' => 'required|string|max:255',
+        'author_id' => 'required|exists:authors,id', // Използвайте author_id
+        'genre_id' => 'required|exists:genres,id',  // Използвайте genre_id
         'price' => 'required|numeric|min:0',
-        'image' => 'nullable|image|max:2048',
     ]);
 
-    $book = new Book();
-    $book->title = $validated['title'];
-    $book->author = $validated['author'];
-    $book->genre = $validated['genre'];
-    $book->price = $validated['price'];
+    // Създайте нова книга
+    Book::create([
+        'title' => $request->title,
+        'author_id' => $request->author_id, // Записвайте author_id
+        'genre_id' => $request->genre_id,   // Записвайте genre_id
+        'price' => $request->price,
+    ]);
 
-    if ($request->hasFile('image')) {
-        $book->image = $request->file('image')->store('books', 'public');
-    }
-
-    $book->save();
-
-    return redirect()->route('books.index')->with('status', 'Книгата беше добавена успешно!');
+    return redirect()->route('admin.books.index')->with('success', 'Книгата е добавена успешно!');
 }
 
 
