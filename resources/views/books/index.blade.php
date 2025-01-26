@@ -89,5 +89,9 @@
             </div>
         @endforeach
     </div>
+
+    <div class="mt-4">
+        {{ $books->links() }}
+    </div>
 </div>
 @endsection

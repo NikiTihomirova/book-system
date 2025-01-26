@@ -34,7 +34,7 @@ class BookController extends Controller
             $books->where('title', 'like', '%' . $request->search . '%');
         }
     
-        $books = $books->get();
+        $books = $books->paginate(8);
 
         // Декодиране на жанра
         foreach ($books as $book) {
