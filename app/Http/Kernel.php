@@ -24,8 +24,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        // Другите middleware...
-        'isAdmin' => \App\Http\Middleware\IsAdmin::class,  // Добавете тази линия
+        // Други middlewares...
+        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
     ];
     
     

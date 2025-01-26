@@ -12,11 +12,22 @@ Route::get('/', function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::put('/admin/books/{book}', function (Request $request, $book) {
+    if (Auth::check() && !Auth::user()->is_admin) {
+        return redirect('/')->with('error', 'Нямате права да редактирате тази книга.');
+    }
+
+    // Продължавате с логиката за обновяване на книгата...
+    return (new BookController())->update($request, $book->id);
+})->middleware('auth');
+
+
 // Рутове за книги
 Route::resource('books', BookController::class);
 Route::post('books/create', [BookController::class, 'store'])->name('books.store');
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
 Route::post('/books', [BookController::class, 'store'])->name('books.store');
+Route::put('/admin/books/{book}', [BookController::class, 'update'])->middleware('auth', 'isAdmin');
 
 // Променяме 'admin' на 'isAdmin' в middleware за администраторските рутове
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdmin'])->group(function () {

@@ -16,14 +16,47 @@ class BookController extends Controller
     //     $this->middleware(IsAdmin::class)->except(['index', 'show']);
     // }
     
-    public function index()
+    public function index(Request $request)
     {
-        // Вземи всички книги от базата
-        $books = Book::all();
-
+        $books = Book::query();
+    
+        // Филтриране по жанр и цена
+        if ($request->filled('genre')) {
+            // Филтрираме по жанр, като търсим съвпадение в името на жанра
+            $books->whereHas('genre', function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->genre . '%');
+            });
+        }
+        if ($request->filled('price')) {
+            // Добави филтриране по цена
+            // Например:
+            if ($request->price == 'low') {
+                $books->where('price', '<', 20);
+            } elseif ($request->price == 'medium') {
+                $books->whereBetween('price', [20, 50]);
+            } elseif ($request->price == 'high') {
+                $books->where('price', '>', 50);
+            }
+        }
+        
+        // Филтриране по заглавие (ако е попълнено)
+        if ($request->filled('search')) {
+            $books->where('title', 'like', '%' . $request->search . '%');
+        }
+    
+        // Извличаме книгите
+        $books = $books->get();
+    
+        // Декодиране на жанра, ако е в JSON формат
+        foreach ($books as $book) {
+            if (is_string($book->genre)) {
+                $book->genre = json_decode($book->genre);
+            }
+        }
+    
         return view('books.index', compact('books'));
     }
-
+    
     // Създаване на нова книга
     public function create()
 {
@@ -86,15 +119,14 @@ public function store(Request $request)
     }
 
     // Контролер за редактиране на книга
-public function update(Request $request, $id)
-{   
-    
-    // Валидация на входните данни
+    public function update(Request $request, $id)
+{
+    // Валидация на входните данни (не задължителни за автор и жанр)
     $request->validate([
-        'title' => 'required|string|max:255',
-        'author' => 'required|string|max:255',
-        'genre' => 'required|string|max:255',
-        'price' => 'required|numeric|regex:/^\d+(\.\d{1,2})?$/',
+        'title' => 'nullable|string|max:255',
+        'author_id' => 'nullable|exists:authors,id',
+        'genre_id' => 'nullable|exists:genres,id',
+        'price' => 'nullable|numeric|regex:/^\d+(\.\d{1,2})?$/',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
@@ -102,10 +134,21 @@ public function update(Request $request, $id)
     $book = Book::findOrFail($id);
 
     // Обновяване на полетата на книгата
-    $book->title = $request->title;
-    $book->author_id = Author::firstOrCreate(['name' => $request->author])->id;
-    $book->genre_id = Genre::firstOrCreate(['name' => $request->genre])->id;
-    $book->price = number_format($request->price, 2, '.', '');
+    if ($request->filled('title')) {
+        $book->title = $request->title;
+    }
+
+    if ($request->filled('author_id')) {
+        $book->author_id = $request->author_id;
+    }
+
+    if ($request->filled('genre_id')) {
+        $book->genre_id = $request->genre_id;
+    }
+
+    if ($request->filled('price')) {
+        $book->price = number_format($request->price, 2, '.', '');
+    }
 
     // Обработка на изображение
     if ($request->hasFile('image')) {
@@ -119,10 +162,12 @@ public function update(Request $request, $id)
         $book->image = $imagePath;
     }
 
+    // Записваме промените
     $book->save();
 
     return redirect()->route('books.index')->with('status', 'Книгата беше актуализирана успешно!');
 }
+
 
 
     // Изтриване на книга

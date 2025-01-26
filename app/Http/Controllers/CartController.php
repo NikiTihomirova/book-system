@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Book; // За използване на модела Book
+use App\Models\Book;
 
 class CartController extends Controller
 {
@@ -14,7 +14,7 @@ class CartController extends Controller
         $total = 0;
 
         // Пресмятаме общата цена
-        foreach ($cart as $item) {
+        foreach ($cart as $bookId => $item) {
             $total += $item['price'] * $item['quantity'];
         }
 
@@ -42,7 +42,7 @@ class CartController extends Controller
         } else {
             // Ако не е в кошницата, добавяме я
             $cart[$bookId] = [
-                'name' => $book->name,  // Записваме името на книгата
+                'name' => $book->title,  // Записваме името на книгата
                 'price' => $book->price, // Записваме цената на книгата
                 'quantity' => 1, // Поставяме начална бройка
             ];

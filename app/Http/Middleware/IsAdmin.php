@@ -18,8 +18,8 @@ class IsAdmin
     public function handle(Request $request, Closure $next)
     {
         // Проверка дали потребителят е логнат и има администраторски права
-        if (Auth::check() && Auth::user()->is_admin) {
-            return $next($request);
+        if (Auth::check() && Auth::user()->is_admin===1) {
+            return redirect('/');
         }
 
         // Пренасочване, ако потребителят не е администратор
