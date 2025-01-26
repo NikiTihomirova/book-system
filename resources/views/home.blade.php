@@ -70,7 +70,7 @@
                 @foreach($books as $book)
                     <div class="col card-container">
                         <div class="card">
-                            <img src="{{ $book->image_url }}" class="card-img-top" alt="Book Image">
+                            <img src="{{ asset('storage/' . $book->image) }}" class="card-img-top" alt="Book Image">
                             <div class="card-body">
                                 <h5 class="card-title">{{ $book->title }}</h5>
                                 <p class="card-text">{{ Str::limit($book->description, 100) }}</p>
